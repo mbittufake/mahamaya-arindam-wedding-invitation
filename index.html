@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0b0609">
+  <meta name="description" content="Together with their families, Mahamaya and Kumar Arindam invite you to celebrate their engagement on 6 December 2026 in Bhubaneswar.">
+  <title>Mahamaya &amp; Arindam — Wedding Invitation Card</title>
+  <meta property="og:title" content="Mahamaya &amp; Arindam — Wedding Invitation Card">
+  <meta property="og:description" content="Together with their families, Mahamaya and Kumar Arindam invite you to celebrate their engagement on 6 December 2026 in Bhubaneswar.">
+  <meta property="og:image" content="curtain-poster.jpg">
+  <meta property="og:type" content="website">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=DM+Sans:wght@300;400;500;600&family=Great+Vibes&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
+</head>
+<body class="mode-curtain">
+
+  <canvas id="fx" aria-hidden="true"></canvas>
+
+  <!-- Background music: plays by default on load; user can mute/unmute anytime -->
+  <audio id="bgm" src="music.mp3" loop preload="auto" autoplay playsinline webkit-playsinline></audio>
+  <button class="music-btn on" id="musicBtn" type="button" aria-pressed="false" aria-label="Mute music">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path class="spk" d="M4 9.5h3.2L12 5.5v13l-4.8-4H4z"/><g class="wv"><path d="M15 9.2a4 4 0 0 1 0 5.6"/><path d="M17.6 6.8a7.5 7.5 0 0 1 0 10.4"/></g><path class="sl" d="M16 9l5 6m0-6l-5 6"/></svg>
+    <span class="music-hint" id="musicHint">Mute</span>
+  </button>
+
+  <!-- Dance video sits underneath; the curtain video is blended on top of it (its black becomes see-through). The blurred backdrop is a still, so only two videos ever decode. -->
+  <section class="stage" id="stage" aria-label="Invitation">
+    <div class="bgblur" aria-hidden="true"></div>
+    <div class="lights" id="lights" aria-hidden="true"></div>
+    <div class="side side-l" aria-hidden="true"><span class="sun">✳</span><span class="vine">❧</span><span class="vnote">A NIGHT TO REMEMBER</span><span class="sun sm">✧</span></div>
+    <div class="side side-r" aria-hidden="true"><span class="sun">✺</span><span class="vine">❧</span><span class="vnote">06 · 12 · 2026</span><span class="sun sm">✦</span></div>
+
+    <div class="frame" id="frame">
+      <!-- Initial reveal: closed curtain in background, waiting for guest to open -->
+      <div class="reveal-gate" id="revealGate">
+        <div class="reveal-seal" aria-hidden="true">
+          <svg class="reveal-ring" viewBox="0 0 60 34" aria-hidden="true">
+            <circle cx="22" cy="21" r="11"/>
+            <circle cx="38" cy="21" r="11"/>
+            <path class="gem" d="M30 2 L34.5 7.5 L30 13 L25.5 7.5 Z"/>
+          </svg>
+        </div>
+        <p class="eyebrow">A celebration of love</p>
+        <h1 class="reveal-names">Mahamaya <i>&amp;</i><br>Arindam</h1>
+        <div class="orn"><b></b><span>✦</span><b></b></div>
+        <p class="reveal-date">06 · 12 · 2026</p>
+        <p class="reveal-script">You are invited</p>
+        <button class="gold-btn reveal-btn" id="revealBtn" type="button">
+          Open Invitation <span aria-hidden="true">✦</span>
+        </button>
+        <p class="reveal-hint">Tap anywhere to enter with music ♫</p>
+      </div>
+
+      <video class="bgvideo dance" id="danceVideo" src="dance.mp4" poster="dance-poster.jpg" muted loop playsinline webkit-playsinline preload="auto" disablepictureinpicture aria-label="The couple dancing"></video>
+      <div class="dim" aria-hidden="true"></div>
+      <video class="bgvideo curtain" id="curtainVideo" src="curtain.mp4" poster="curtain-poster.jpg" muted playsinline webkit-playsinline preload="auto" disablepictureinpicture aria-hidden="true"></video>
+      <div class="bloom" aria-hidden="true"></div>
+      <div class="veil" id="veil"></div>
+      <div class="gframe" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+
+      <div class="stars" id="stars" aria-hidden="true"></div>
+      <div class="intro" aria-hidden="true">
+        <p class="inv-script"><span>You are invited</span></p>
+        <p class="inv-sub">To celebrate our engagement</p>
+      </div>
+      <header class="hdr">
+        <p class="h-eyebrow">The engagement of</p>
+        <h1 class="h-names">Mahamaya <i>&amp;</i><br>Arindam</h1>
+        <p class="h-date">06 · 12 · 2026</p>
+      </header>
+
+      <div class="scenes" id="scenes">
+
+        <div class="scene" data-dur="7600">
+          <p class="l eyebrow" style="--i:0">Together with their families</p>
+          <svg class="l ring" style="--i:1" viewBox="0 0 60 34" aria-hidden="true">
+            <circle cx="22" cy="21" r="11"/><circle cx="38" cy="21" r="11"/>
+            <path class="gem" d="M30 2 L34.5 7.5 L30 13 L25.5 7.5 Z"/>
+          </svg>
+          <h2 class="l h2" style="--i:2">Engagement</h2>
+          <div class="l orn" style="--i:3"><b></b><span>✦</span><b></b></div>
+          <p class="l sub" style="--i:4">(Ring Ceremony)</p>
+        </div>
+
+        <div class="scene" data-dur="7400">
+          <p class="l eyebrow" style="--i:0">Save the date</p>
+          <div class="l bigdate" style="--i:1">
+            <span class="num">06</span>
+            <span class="meta">December<br><b>2026</b></span>
+          </div>
+          <div class="l orn" style="--i:2"><b></b><span>✦</span><b></b></div>
+          <p class="l sub" style="--i:3">Sunday</p>
+          <p class="l note" style="--i:4">7:00 PM ONWARDS</p>
+        </div>
+
+        <div class="scene" data-dur="7000">
+          <p class="l eyebrow" style="--i:0">The place</p>
+          <div class="l orn" style="--i:1"><b></b><span>✦</span><b></b></div>
+          <h2 class="l h2" style="--i:2">Mayfair<br>Lagoon</h2>
+          <div class="l orn" style="--i:3"><b></b><span>✦</span><b></b></div>
+          <p class="l sub" style="--i:4">Mandap Area · Bhubaneswar</p>
+        </div>
+
+        <div class="scene" data-dur="7800">
+          <p class="l eyebrow" style="--i:0">Dress with joy</p>
+          <div class="l orn" style="--i:1"><b></b><span>✦</span><b></b></div>
+          <h2 class="l h2" style="--i:2">Festive<br>&amp; fabulous</h2>
+          <div class="l orn" style="--i:3"><b></b><span>✦</span><b></b></div>
+          <p class="l note" style="--i:4"><b>GENTLEMEN</b><br>Best suits</p>
+          <p class="l note" style="--i:5"><b>LADIES</b><br>Glam sarees / party wear Indo-Western</p>
+        </div>
+
+        <div class="scene" data-dur="7400">
+          <p class="l eyebrow" style="--i:0">The bride</p>
+          <h2 class="l h2" style="--i:1">Mahamaya<br>Kashyap</h2>
+          <div class="l orn" style="--i:2"><b></b><span>✦</span><b></b></div>
+          <p class="l note" style="--i:3">BELOVED DAUGHTER OF</p>
+          <p class="l sub" style="--i:4">Saroj Kumar Kashyap<br>&amp; Purnima Mohanty</p>
+          <p class="l note it" style="--i:5">&amp; sister Yogamaya Kashyap</p>
+        </div>
+
+        <div class="scene" data-dur="7000">
+          <p class="l eyebrow" style="--i:0">The groom</p>
+          <h2 class="l h2" style="--i:1">Kumar<br>Arindam</h2>
+          <div class="l orn" style="--i:2"><b></b><span>✦</span><b></b></div>
+          <p class="l note" style="--i:3">BELOVED SON OF</p>
+          <p class="l sub" style="--i:4">Debabrata Sahu<br>&amp; Sasmita Sahu</p>
+        </div>
+
+        <div class="scene" data-dur="0">
+          <p class="l eyebrow" style="--i:0">We would be honoured</p>
+          <div class="l orn" style="--i:1"><b></b><span>✦</span><b></b></div>
+          <h2 class="l h2" style="--i:2">To celebrate<br><span class="script">with you.</span></h2>
+          <p class="l sub" style="--i:3">Your presence will make our day<br>even more beautiful.</p>
+          <p class="l note" style="--i:4" id="daysLeft">06 · 12 · 2026</p>
+        </div>
+      </div>
+
+      <div class="cta" id="cta">
+        <button class="gold-btn" id="viewAll" type="button">View all details <span aria-hidden="true">✦</span></button>
+        <button class="ghost-link" id="replayA" type="button">↺ Replay the story</button>
+      </div>
+      <button class="skip" id="skipStory" type="button">Skip to all details ↗</button>
+
+      <div class="controls">
+        <button class="arrow" id="prevBtn" type="button" aria-label="Previous">‹</button>
+        <div class="progress" id="progress" role="tablist" aria-label="Story progress"></div>
+        <button class="arrow" id="nextBtn" type="button" aria-label="Next">›</button>
+      </div>
+    </div>
+
+    <button class="skip-button" id="skipButton" type="button">Skip intro <span aria-hidden="true">↗</span></button>
+  </section>
+
+  <!-- Simple details site with celebration animation -->
+  <main class="site" id="site" aria-hidden="true">
+    <div class="bunting" id="bunting" aria-hidden="true"></div>
+    <div class="balloons" id="balloons" aria-hidden="true"></div>
+
+    <header class="s-hero">
+      <p class="s-eyebrow rv">Together with their families</p>
+      <h1 class="s-names rv" style="--d:.1s">Mahamaya<br><em>&amp;</em> Arindam</h1>
+      <p class="s-lead rv" style="--d:.2s">invite you to celebrate the beginning of their forever</p>
+      <div class="chips rv" style="--d:.3s"><span>Sunday, 6 December 2026</span><span>7:00 pm onwards</span><span>Bhubaneswar</span></div>
+      <div class="countdown rv" style="--d:.4s" aria-label="Countdown to the celebration">
+        <div><strong id="days">—</strong><span>days</span></div><i>:</i>
+        <div><strong id="hours">—</strong><span>hours</span></div><i>:</i>
+        <div><strong id="minutes">—</strong><span>minutes</span></div><i>:</i>
+        <div><strong id="seconds">—</strong><span>seconds</span></div>
+      </div>
+      <div class="actions rv" style="--d:.5s">
+        <button class="gold-btn dark" id="calBtn" type="button">Save the date ↗</button>
+        <button class="line-btn" id="popBtn" type="button">Celebrate ✦</button>
+      </div>
+    </header>
+
+    <section class="s-details" id="details">
+      <p class="s-eyebrow rv">The first celebration</p>
+      <h2 class="s-title rv">A ring ceremony <em>to remember.</em></h2>
+      <div class="cards">
+        <article class="card rv" style="--d:0s"><span class="ico">✦</span><p class="lbl">The occasion</p><h3>Engagement</h3><p class="det">(Ring Ceremony)</p></article>
+        <article class="card rv" style="--d:.1s"><span class="ico">✳</span><p class="lbl">Date &amp; time</p><h3>Sunday, 6 December 2026</h3><p class="det">7:00 pm onwards</p></article>
+        <article class="card rv" style="--d:.2s"><span class="ico">❋</span><p class="lbl">The place</p><h3>Mayfair Lagoon</h3><p class="det">Mandap Area · Bhubaneswar</p><a class="maplink" href="https://www.google.com/maps/search/?api=1&query=Mayfair+Lagoon+Bhubaneswar" target="_blank" rel="noopener">Open in Maps ↗</a></article>
+        <article class="card rv" style="--d:.3s"><span class="ico">✧</span><p class="lbl">Dress with joy</p><h3>Festive &amp; fabulous</h3><p class="det">Gentlemen · Best suits<br>Ladies · Glam sarees / party wear Indo-Western</p></article>
+      </div>
+    </section>
+
+    <section class="s-family" id="family">
+      <p class="s-eyebrow rv">Two families, one joyful beginning</p>
+      <h2 class="s-title rv">With love from <em>our families.</em></h2>
+      <div class="fam-grid">
+        <article class="fam rv"><p class="lbl">The bride</p><h3>Mahamaya Kashyap</h3><p class="of">Beloved daughter of</p><p class="par">Saroj Kumar Kashyap<br>&amp; Purnima Mohanty</p><p class="sib">&amp; sister Yogamaya Kashyap</p></article>
+        <article class="fam rv" style="--d:.15s"><p class="lbl">The groom</p><h3>Kumar Arindam</h3><p class="of">Beloved son of</p><p class="par">Debabrata Sahu<br>&amp; Sasmita Sahu</p></article>
+      </div>
+    </section>
+
+    <section class="s-close" id="closing">
+      <p class="s-eyebrow light rv">We would be honoured</p>
+      <h2 class="s-close-title rv">To celebrate <em>with you.</em></h2>
+      <p class="s-close-note rv">Your presence will make our day even more beautiful.</p>
+      <div class="actions rv">
+        <button class="gold-btn" id="calBtn2" type="button">Save the date ↗</button>
+        <button class="line-btn light" id="replayB" type="button">↺ Watch the story again</button>
+      </div>
+    </section>
+    <footer><span>MAHAMAYA &amp; ARINDAM</span><span>MADE WITH LOVE · 2026</span></footer>
+  </main>
+
+  <!-- Add-to-calendar sheet: opens the event in the person's calendar instead of just downloading a file -->
+  <div class="calsheet" id="calSheet" aria-hidden="true">
+    <div class="calsheet-bg" data-close></div>
+    <div class="calsheet-card" role="dialog" aria-modal="true" aria-labelledby="calTitle">
+      <button class="calsheet-x" type="button" data-close aria-label="Close">×</button>
+      <h3 id="calTitle">Add to your calendar</h3>
+      <p class="calsheet-when">Sunday, 6 December 2026 · 7:00 pm · Mayfair Lagoon</p>
+      <div class="calsheet-list">
+        <a class="cal-opt" id="calGoogle" href="#" target="_blank" rel="noopener"><b>Google Calendar</b><small>Opens the event, ready to save</small></a>
+        <button class="cal-opt" id="calApple" type="button"><b>Apple Calendar</b><small>iPhone, iPad and Mac</small></button>
+        <a class="cal-opt" id="calOutlook" href="#" target="_blank" rel="noopener"><b>Outlook</b><small>Opens the event, ready to save</small></a>
+      </div>
+      <p class="calsheet-note">Reminders are set for 1 day and 3 hours before.</p>
+    </div>
+  </div>
+</body>
+</html>
