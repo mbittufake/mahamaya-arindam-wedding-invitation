@@ -65,10 +65,10 @@
       add({ type: 'petal', x, y, vx: rnd(-.3, .3), vy: rnd(.7, 1.5), g: .002, size: rnd(5, 9), color: pick(PETAL), rot: rnd(0, 6), vr: rnd(-.04, .04), vt: rnd(.03, .08), sway: rnd(.4, 1), sw: rnd(1, 2.4), max: 14, a: .85 });
     }
 
-    let bf = null;
-    function butterfly(p, size, dur = 7200) { bf = { t: 0, dur, p, size, x: p[0], y: p[1], ang: 0, px: p[0], py: p[1] }; kick(); }
-    function bfPos(u, t, s) {
-      const [x0, y0, x1, y1, x2, y2, x3, y3] = bf.p, v = 1 - u;
+    let bfs = [];
+    function butterfly(p, size, dur = 7200) { bfs.push({ t: 0, dur, p, size, x: p[0], y: p[1], ang: 0 }); kick(); }
+    function bfPos(b, u, t, s) {
+      const [x0, y0, x1, y1, x2, y2, x3, y3] = b.p, v = 1 - u;
       const x = v * v * v * x0 + 3 * v * v * u * x1 + 3 * v * u * u * x2 + u * u * u * x3;
       const y = v * v * v * y0 + 3 * v * v * u * y1 + 3 * v * u * u * y2 + u * u * u * y3;
       // lazy, wandering flutter on top of the main curve
@@ -76,87 +76,93 @@
               y + Math.sin(t / 470) * s * .9 + Math.sin(t / 150 + 1) * s * .14];
     }
     function bfStep(dt) {
-      if (!bf) return;
-      bf.t += dt * 16.667;
-      const u = bf.t / bf.dur;
-      if (u >= 1) { bf = null; return; }
-      const [nx, ny] = bfPos(u, bf.t, bf.size);
-      const vx = nx - bf.x, vy = ny - bf.y;
-      if (Math.hypot(vx, vy) > .05) {
-        let target = Math.atan2(vy, vx) + Math.PI / 2, d = target - bf.ang;
-        d = Math.atan2(Math.sin(d), Math.cos(d));
-        bf.ang += d * .06 * dt;                       // turn gently toward where it is going
+      if (!bfs.length) return;
+      for (const b of bfs) {
+        b.t += dt * 16.667;
+        const u = b.t / b.dur;
+        if (u >= 1) continue;
+        const [nx, ny] = bfPos(b, u, b.t, b.size);
+        const vx = nx - b.x, vy = ny - b.y;
+        if (Math.hypot(vx, vy) > .05) {
+          let target = Math.atan2(vy, vx) + Math.PI / 2, d = target - b.ang;
+          d = Math.atan2(Math.sin(d), Math.cos(d));
+          b.ang += d * .06 * dt;                       // turn gently toward where it is going
+        }
+        b.x = nx; b.y = ny;
+        if (Math.random() < .75) add({ type: Math.random() < .28 ? 'star' : 'dot', x: b.x + rnd(-6, 6), y: b.y + rnd(0, 10), vx: rnd(-.2, .2), vy: rnd(.05, .4), g: .004, size: rnd(1.5, 4.2), color: pick(GOLD), max: rnd(1, 2.2), a: .9, vt: .2, rot: rnd(0, 6) });
       }
-      bf.x = nx; bf.y = ny;
-      if (Math.random() < .75) add({ type: Math.random() < .28 ? 'star' : 'dot', x: bf.x + rnd(-6, 6), y: bf.y + rnd(0, 10), vx: rnd(-.2, .2), vy: rnd(.05, .4), g: .004, size: rnd(1.5, 4.2), color: pick(GOLD), max: rnd(1, 2.2), a: .9, vt: .2, rot: rnd(0, 6) });
+      bfs = bfs.filter(b => b.t < b.dur);
     }
     function drawBf() {
-      if (!bf) return;
-      const s = bf.size, fade = Math.max(0, Math.min(1, bf.t / 900, (bf.dur - bf.t) / 1100));
-      const ph = bf.t / 125, down = .5 + .5 * Math.cos(ph + .75 * Math.sin(ph)); // quick downstroke, slower lift
-      const flap = .34 + .66 * down;
-      ctx.save();
-      ctx.translate(bf.x, bf.y + Math.sin(ph) * s * .05);
-      ctx.rotate(bf.ang + Math.sin(bf.t / 700) * .12);
-      ctx.globalAlpha = fade;
-      // soft aura
-      const aura = ctx.createRadialGradient(0, 0, 0, 0, 0, s * 1.5);
-      aura.addColorStop(0, '#ffe9c04d'); aura.addColorStop(1, '#ffe9c000');
-      ctx.fillStyle = aura; ctx.beginPath(); ctx.arc(0, 0, s * 1.5, 0, 6.283); ctx.fill();
+      for (const bf of bfs) {
+        const s = bf.size, fade = Math.max(0, Math.min(1, bf.t / 900, (bf.dur - bf.t) / 1100));
+        const ph = bf.t / 125, down = .5 + .5 * Math.cos(ph + .75 * Math.sin(ph)); // quick downstroke, slower lift
+        const flap = .34 + .66 * down;
+        ctx.save();
+        ctx.translate(bf.x, bf.y + Math.sin(ph) * s * .05);
+        ctx.rotate(bf.ang + Math.sin(bf.t / 700) * .12);
+        ctx.globalAlpha = fade;
+        // soft aura
+        const aura = ctx.createRadialGradient(0, 0, 0, 0, 0, s * 1.5);
+        aura.addColorStop(0, '#ffe9c04d'); aura.addColorStop(1, '#ffe9c000');
+        ctx.fillStyle = aura; ctx.beginPath(); ctx.arc(0, 0, s * 1.5, 0, 6.283); ctx.fill();
 
-      const fore = () => { ctx.beginPath(); ctx.moveTo(.03, -.1);
-        ctx.bezierCurveTo(.22, -.98, .86, -1.2, 1.06, -.86);
-        ctx.bezierCurveTo(1.14, -.55, .95, -.22, .6, -.06);
-        ctx.bezierCurveTo(.4, .0, .18, .02, .03, .04); ctx.closePath(); };
-      const hind = () => { ctx.beginPath(); ctx.moveTo(.03, 0);
-        ctx.bezierCurveTo(.4, -.1, .8, .02, .82, .34);
-        ctx.bezierCurveTo(.84, .6, .6, .8, .4, .8);
-        ctx.bezierCurveTo(.36, .92, .3, 1.12, .2, 1.2);        // tail
-        ctx.bezierCurveTo(.2, 1.0, .16, .8, .1, .55);
-        ctx.bezierCurveTo(.05, .35, .02, .2, .03, .04); ctx.closePath(); };
-      const veins = (list) => { ctx.strokeStyle = '#fff1d655'; ctx.lineWidth = Math.max(.6, s * .012);
-        ctx.beginPath(); for (const [x, y] of list) { ctx.moveTo(.04, -.02); ctx.quadraticCurveTo(x * .5, y * .35, x, y); } ctx.stroke(); };
-      const paint = (shape, lift, lag, vein) => {
-        for (const side of [-1, 1]) {
-          ctx.save(); ctx.scale(side * s, s);
-          const f = Math.max(.12, flap - lag);
-          ctx.transform(f, 0, side * (1 - f) * -.0, 1, 0, 0);       // wing foreshortens as it beats
-          ctx.rotate(-(1 - f) * lift * side * side);                  // and rises
-          const g = ctx.createLinearGradient(0, 0, 1, -.7);
-          g.addColorStop(0, '#fffdf7f5'); g.addColorStop(.5, '#ffefd2c4'); g.addColorStop(1, '#ffd49a88');
-          ctx.fillStyle = g;
-          shape(); ctx.fill();
-          ctx.strokeStyle = '#fff6e6'; ctx.lineWidth = .018; ctx.stroke();
-          ctx.save(); shape(); ctx.clip(); veins(vein); ctx.restore();
-          // soft margin spots
-          ctx.fillStyle = '#ffe2b0aa';
-          for (const [x, y, r] of (shape === fore ? [[.9, -.78, .035], [.97, -.58, .03], [.82, -.38, .028]] : [[.68, .5, .035], [.52, .68, .03]])) { ctx.beginPath(); ctx.arc(x, y, r, 0, 6.283); ctx.fill(); }
-          ctx.restore();
-        }
-      };
-      paint(hind, .25, .1, [[.8, .3], [.6, .65], [.35, .85], [.95, .05]]);
-      paint(fore, .35, 0, [[1, -.85], [.95, -.55], [.75, -.3], [.55, -.9], [.3, -.8]]);
+        const fore = () => { ctx.beginPath(); ctx.moveTo(.03, -.1);
+          ctx.bezierCurveTo(.22, -.98, .86, -1.2, 1.06, -.86);
+          ctx.bezierCurveTo(1.14, -.55, .95, -.22, .6, -.06);
+          ctx.bezierCurveTo(.4, .0, .18, .02, .03, .04); ctx.closePath(); };
+        const hind = () => { ctx.beginPath(); ctx.moveTo(.03, 0);
+          ctx.bezierCurveTo(.4, -.1, .8, .02, .82, .34);
+          ctx.bezierCurveTo(.84, .6, .6, .8, .4, .8);
+          ctx.bezierCurveTo(.36, .92, .3, 1.12, .2, 1.2);        // tail
+          ctx.bezierCurveTo(.2, 1.0, .16, .8, .1, .55);
+          ctx.bezierCurveTo(.05, .35, .02, .2, .03, .04); ctx.closePath(); };
+        const veins = (list) => { ctx.strokeStyle = '#fff1d655'; ctx.lineWidth = Math.max(.6, s * .012);
+          ctx.beginPath(); for (const [x, y] of list) { ctx.moveTo(.04, -.02); ctx.quadraticCurveTo(x * .5, y * .35, x, y); } ctx.stroke(); };
+        const paint = (shape, lift, lag, vein) => {
+          for (const side of [-1, 1]) {
+            ctx.save(); ctx.scale(side * s, s);
+            const f = Math.max(.12, flap - lag);
+            ctx.transform(f, 0, side * (1 - f) * -.0, 1, 0, 0);       // wing foreshortens as it beats
+            ctx.rotate(-(1 - f) * lift * side * side);                  // and rises
+            const g = ctx.createLinearGradient(0, 0, 1, -.7);
+            g.addColorStop(0, '#fffdf7f5'); g.addColorStop(.5, '#ffefd2c4'); g.addColorStop(1, '#ffd49a88');
+            ctx.fillStyle = g;
+            shape(); ctx.fill();
+            ctx.strokeStyle = '#fff6e6'; ctx.lineWidth = .018; ctx.stroke();
+            ctx.save(); shape(); ctx.clip(); veins(vein); ctx.restore();
+            // soft margin spots
+            ctx.fillStyle = '#ffe2b0aa';
+            for (const [x, y, r] of (shape === fore ? [[.9, -.78, .035], [.97, -.58, .03], [.82, -.38, .028]] : [[.68, .5, .035], [.52, .68, .03]])) { ctx.beginPath(); ctx.arc(x, y, r, 0, 6.283); ctx.fill(); }
+            ctx.restore();
+          }
+        };
+        paint(hind, .25, .1, [[.8, .3], [.6, .65], [.35, .85], [.95, .05]]);
+        paint(fore, .35, 0, [[1, -.85], [.95, -.55], [.75, -.3], [.55, -.9], [.3, -.8]]);
 
-      // body + antennae
-      ctx.shadowBlur = 0; ctx.fillStyle = '#fff3dc';
-      ctx.beginPath(); ctx.ellipse(0, .3 * s, s * .05, s * .3, 0, 0, 6.283); ctx.fill();
-      ctx.beginPath(); ctx.ellipse(0, -.06 * s, s * .075, s * .15, 0, 0, 6.283); ctx.fill();
-      ctx.beginPath(); ctx.arc(0, -.26 * s, s * .065, 0, 6.283); ctx.fill();
-      ctx.strokeStyle = '#fff3dc'; ctx.lineWidth = Math.max(1, s * .02); ctx.lineCap = 'round';
-      for (const sd of [-1, 1]) { ctx.beginPath(); ctx.moveTo(sd * s * .02, -.3 * s); ctx.quadraticCurveTo(sd * s * .12, -.6 * s, sd * s * .3, -.68 * s + Math.sin(ph * .5) * s * .03); ctx.stroke(); }
-      ctx.restore();
+        // body + antennae
+        ctx.shadowBlur = 0; ctx.fillStyle = '#fff3dc';
+        ctx.beginPath(); ctx.ellipse(0, .3 * s, s * .05, s * .3, 0, 0, 6.283); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(0, -.06 * s, s * .075, s * .15, 0, 0, 6.283); ctx.fill();
+        ctx.beginPath(); ctx.arc(0, -.26 * s, s * .065, 0, 6.283); ctx.fill();
+        ctx.strokeStyle = '#fff3dc'; ctx.lineWidth = Math.max(1, s * .02); ctx.lineCap = 'round';
+        for (const sd of [-1, 1]) { ctx.beginPath(); ctx.moveTo(sd * s * .02, -.3 * s); ctx.quadraticCurveTo(sd * s * .12, -.6 * s, sd * s * .3, -.68 * s + Math.sin(ph * .5) * s * .03); ctx.stroke(); }
+        ctx.restore();
+      }
     }
     function ambientStep(dt) {
       if (reduce || !amb || document.hidden) return;
       acc.a += dt / 60; acc.b += dt / 60; acc.c += dt / 60;
       const k = Math.max(.4, quality) * (scrolling ? .5 : 1);     // spawn gaps stretch when the device is struggling or the page is scrolling
       if (amb === 'stage') {
-        while (acc.a > .22 / k) { acc.a -= .22 / k; add({ type: 'star', x: rnd(0, W), y: rnd(H * .3, H), vx: rnd(-.15, .15), vy: rnd(-.5, -.15), size: rnd(3, 7), color: pick(GOLD), max: rnd(3, 5), vt: rnd(.05, .12), a: .8 }); }
-        while (acc.b > 1.1 / k) { acc.b -= 1.1 / k; petal(rnd(0, W), -20); }
+        // Falling golden sparkles & glitters across the video
+        while (acc.a > .14 / k) { acc.a -= .14 / k; add({ type: Math.random() < .65 ? 'star' : 'dot', x: rnd(0, W), y: -12, vx: rnd(-.25, .25), vy: rnd(.65, 1.55), g: .003, size: rnd(2.2, 6.5), color: pick(GOLD), max: rnd(5, 9), vt: rnd(.08, .18), sway: rnd(.25, .65), sw: rnd(1.2, 2.4), a: .92 }); }
+        while (acc.b > .95 / k) { acc.b -= .95 / k; petal(rnd(0, W), -20); }
       } else {
-        while (acc.a > .45 / k) { acc.a -= .45 / k; petal(rnd(0, W), -20); }
-        while (acc.b > 1.4 / k) { acc.b -= 1.4 / k; add({ type: pick(['rect', 'star']), x: rnd(0, W), y: -10, vx: rnd(-.5, .5), vy: rnd(1, 2), g: .004, size: rnd(5, 9), color: pick(MIX), rot: rnd(0, 6), vr: rnd(-.08, .08), vt: .12, sway: .5, sw: 2, max: 11, a: .9 }); }
-        while (!scrolling && acc.c > 9) { acc.c -= 9; confetti(rnd(W * .15, W * .85), H * .2, 26, { speed: [3, 8], g: .12 }); }
+        // Rich engagement party theme: continuous golden glitters + periodic party poppers
+        while (acc.a > .18 / k) { acc.a -= .18 / k; add({ type: 'star', x: rnd(0, W), y: rnd(0, H), vx: rnd(-.2, .2), vy: rnd(.35, 1.05), size: rnd(3, 7.5), color: pick(GOLD), max: rnd(2.2, 4), vt: rnd(.08, .18), a: .9 }); }
+        while (acc.b > .65 / k) { acc.b -= .65 / k; add({ type: pick(['rect', 'star', 'dot']), x: rnd(0, W), y: -10, vx: rnd(-.55, .55), vy: rnd(1.1, 2.2), g: .004, size: rnd(4, 8), color: pick(MIX), rot: rnd(0, 6), vr: rnd(-.09, .09), vt: .14, sway: .5, sw: 2, max: 10, a: .92 }); }
+        while (!scrolling && acc.c > 7.5) { acc.c -= 7.5; cannons(); }
       }
     }
 
@@ -194,7 +200,7 @@
       ctx.globalCompositeOperation = 'source-over';
       for (const p of parts) if (p.type !== 'spark' && p.type !== 'star') draw(p);
       drawBf(); ctx.globalAlpha = 1;
-      raf = (parts.length || amb || bf) ? requestAnimationFrame(frame) : 0;
+      raf = (parts.length || amb || bfs.length) ? requestAnimationFrame(frame) : 0;
     }
     function kick() { if (!raf) { last = performance.now(); raf = requestAnimationFrame(frame); } }
     function mode(m) { amb = m; kick(); }
@@ -228,7 +234,7 @@
   })();
 
   (function buildBunting() {
-    const cols = ['#4b1e34', '#c88c82', '#e7bd8b', '#f1d7ca', '#a9536b'];
+    const cols = ['#5e1630', '#e7bd8b', '#821d40', '#f6dcaa', '#3d0c1f'];
     const n = Math.max(14, Math.round(innerWidth / 46));
     $('bunting').innerHTML = Array.from({ length: n }, (_, i) =>
       `<i style="background:${cols[i % cols.length]};animation-delay:${(-i * .27).toFixed(2)}s"></i>`).join('');
@@ -265,18 +271,80 @@
     }, 650);
   }
 
+  let stateEndTimer = null, endFxFired = false;
+  function endStateTransition(stateIdx) {
+    if (endFxFired || reduce || !body.classList.contains('mode-stage')) return;
+    endFxFired = true;
+    const r = frame.getBoundingClientRect(), P = (u, v) => [r.left + r.width * u, r.top + r.height * v];
+    const sz = Math.max(18, r.width * .072);
+    frame.classList.remove('loop-pulse');
+    void frame.offsetWidth;
+    frame.classList.add('loop-pulse');
+    setTimeout(() => frame.classList.remove('loop-pulse'), 1900);
+
+    switch (stateIdx) {
+      case 0: // Engagement (Ring Ceremony) -> twin butterflies + ring-halo glints
+        FX.glints(...P(.5, .48), 32);
+        FX.butterfly([...P(-.1, .75), ...P(.35, .28), ...P(.65, .6), ...P(1.1, .25)], sz, 5200);
+        setTimeout(() => FX.butterfly([...P(1.1, .72), ...P(.65, .28), ...P(.35, .6), ...P(-.1, .25)], sz * .9, 5200), 160);
+        break;
+      case 1: // Save the Date -> starlight cascade + date sparkles
+        FX.confetti(...P(.5, .15), 55, { angle: Math.PI / 2, spread: 2.4, speed: [1.5, 5.5], g: .07 });
+        FX.glints(...P(.5, .52), 26);
+        FX.fireworks(...P(.82, .28));
+        break;
+      case 2: // The Place (Mayfair Lagoon) -> golden venue fireworks + sweeping butterfly
+        FX.fireworks(...P(.22, .3));
+        setTimeout(() => FX.fireworks(...P(.78, .3)), 280);
+        FX.butterfly([...P(-.08, .82), ...P(.42, .2), ...P(.6, .58), ...P(1.08, .22)], sz, 5400);
+        break;
+      case 3: // Dress with Joy (Festive & Fabulous) -> festive party poppers + glitters
+        FX.confetti(...P(0, .95), 45, { angle: -Math.PI * .35, spread: .55, speed: [9, 17], g: .22 });
+        FX.confetti(...P(1, .95), 45, { angle: -Math.PI * .65, spread: .55, speed: [9, 17], g: .22 });
+        FX.glints(...P(.5, .5), 28);
+        break;
+      case 4: // The Bride -> rose-gold petals + graceful butterfly
+        FX.petals(24);
+        FX.butterfly([...P(-.08, .68), ...P(.38, .22), ...P(.68, .54), ...P(1.08, .24)], sz * 1.05, 5600);
+        FX.glints(...P(.5, .52), 22);
+        break;
+      case 5: // The Groom -> royal golden fireworks + ascending butterflies into finale
+        FX.fireworks(...P(.5, .26));
+        FX.butterfly([...P(.2, 1.06), ...P(.35, .62), ...P(.55, .38), ...P(.85, -.06)], sz * .88, 5200);
+        setTimeout(() => FX.butterfly([...P(.8, 1.06), ...P(.65, .62), ...P(.45, .38), ...P(.15, -.06)], sz * .85, 5200), 200);
+        FX.glints(...P(.5, .5), 26);
+        break;
+    }
+  }
+
   function go(i) {
     i = Math.max(0, Math.min(LAST, i));
     if (i === cur) return;
+    const prevIdx = cur;
     cur = i;
+    clearTimeout(timer); clearTimeout(stateEndTimer);
+    if (prevIdx !== -1 && !endFxFired) endStateTransition(prevIdx);
+    endFxFired = false;
+
+    // Play the dance video from the start for each state (keep continuous from intro on initial State 1)
+    if (prevIdx !== -1 || i !== 0) {
+      try {
+        dance.currentTime = 0;
+        dance.play().catch(() => {});
+      } catch (e) {}
+    } else if (dance.paused) {
+      dance.play().catch(() => {});
+    }
+    loopTriggered = false;
+
     scenes.forEach((s, k) => s.classList.toggle('on', k === i));
     segs.forEach((s, k) => { s.classList.toggle('done', k < i); s.classList.toggle('cur', k === i); s.classList.toggle('static', k === i && i === LAST); s.style.removeProperty('--d'); });
     frame.classList.toggle('last', i === LAST);
-    clearTimeout(timer);
     if (i < LAST) {
       const d = +scenes[i].dataset.dur || 6500;
       void segs[i].offsetWidth;
       segs[i].style.setProperty('--d', d + 'ms');
+      stateEndTimer = setTimeout(() => endStateTransition(i), Math.max(500, d - 580));
       timer = setTimeout(() => go(cur + 1), d);
     }
     sceneFx(i);
@@ -284,7 +352,7 @@
   const next = () => go(cur + 1), prev = () => go(cur - 1);
   $('nextBtn').addEventListener('click', e => { e.stopPropagation(); next(); });
   $('prevBtn').addEventListener('click', e => { e.stopPropagation(); prev(); });
-  frame.addEventListener('click', e => { if (!e.target.closest('button') && cur < LAST) next(); });
+  frame.addEventListener('click', e => { if (body.classList.contains('mode-stage') && cur >= 0 && !e.target.closest('button') && cur < LAST) next(); });
   addEventListener('keydown', e => {
     if (!body.classList.contains('mode-stage')) return;
     if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); next(); }
@@ -300,7 +368,7 @@
   /* ================= mode switching ================= */
   // The intro is a timeline of class changes (CSS does the animating on the GPU); nothing writes styles every frame.
   const stage = $('stage'), curtain = $('curtainVideo'), site = $('site');
-  let entered = false, introStarted = false, balloonTimer = null, booted = false;
+  let entered = false, introStarted = false, booted = false;
   const T = [];
   const later = (fn, ms) => T.push(setTimeout(fn, ms));
   const setMode = m => { body.className = 'mode-' + m; };
@@ -316,14 +384,72 @@
     FX.butterfly([...P(-.08, .86), ...P(.5, .12), ...P(.1, .72), ...P(1.08, .36)], Math.max(20, r.width * .08));
   }
 
-  // The dance is already playing under the curtain. As the curtain parts, the dance comes into focus
-  // through the gap, "You are invited" writes in over it, then the names settle at the top and the details begin.
+  /* ---- seamless video-loop transition: unique butterfly/sparkle effect each time final.mp4 restarts ---- */
+  let loopCycle = 0, loopTriggered = false;
+  function runLoopTransition(cycle) {
+    if (reduce || body.classList.contains('mode-site') || !body.classList.contains('mode-stage')) return;
+    const r = frame.getBoundingClientRect(), P = (u, v) => [r.left + r.width * u, r.top + r.height * v];
+    const sz = Math.max(18, r.width * .072);
+    frame.classList.remove('loop-pulse');
+    void frame.offsetWidth;
+    frame.classList.add('loop-pulse');
+    setTimeout(() => frame.classList.remove('loop-pulse'), 1900);
+
+    switch (cycle % 5) {
+      case 0: // Golden butterfly flock swooping across the restart seam
+        FX.butterfly([...P(-.1, .78), ...P(.35, .28), ...P(.65, .62), ...P(1.1, .22)], sz, 5600);
+        setTimeout(() => FX.butterfly([...P(1.1, .72), ...P(.62, .25), ...P(.32, .58), ...P(-.1, .3)], sz * .85, 5400), 180);
+        setTimeout(() => FX.butterfly([...P(.15, 1.08), ...P(.45, .52), ...P(.72, .35), ...P(.95, -.08)], sz * .75, 5000), 340);
+        FX.glints(...P(.5, .48), 26);
+        break;
+      case 1: // Starlight cascade + hero butterfly
+        FX.confetti(...P(.5, .12), 45, { angle: Math.PI / 2, spread: 2.2, speed: [1.5, 5.5], g: .06 });
+        FX.butterfly([...P(-.08, .88), ...P(.4, .18), ...P(.25, .68), ...P(1.08, .28)], sz * 1.1, 6200);
+        FX.glints(...P(.5, .52), 28);
+        break;
+      case 2: // Rose-gold petal whirl + twin synchronized butterflies
+        FX.petals(22);
+        FX.butterfly([...P(-.08, .35), ...P(.4, .65), ...P(.65, .25), ...P(1.08, .55)], sz * .9, 5500);
+        setTimeout(() => FX.butterfly([...P(1.08, .4), ...P(.6, .7), ...P(.35, .25), ...P(-.08, .55)], sz * .9, 5500), 150);
+        break;
+      case 3: // Celebration poppers + sparkle halo
+        FX.confetti(...P(0, .95), 40, { angle: -Math.PI * .35, spread: .55, speed: [8, 16], g: .22 });
+        FX.confetti(...P(1, .95), 40, { angle: -Math.PI * .65, spread: .55, speed: [8, 16], g: .22 });
+        FX.glints(...P(.5, .5), 32);
+        break;
+      case 4: // Enchanted fireworks + ascending butterfly trio
+        FX.fireworks(...P(.22, .32));
+        setTimeout(() => FX.fireworks(...P(.78, .28)), 350);
+        FX.butterfly([...P(.2, 1.06), ...P(.35, .65), ...P(.55, .42), ...P(.85, -.06)], sz * .85, 5200);
+        setTimeout(() => FX.butterfly([...P(.8, 1.06), ...P(.65, .62), ...P(.45, .38), ...P(.15, -.06)], sz * .8, 5200), 220);
+        break;
+    }
+  }
+  function watchDanceLoop() {
+    if (cur === LAST && dance && dance.duration && !dance.paused && body.classList.contains('mode-stage')) {
+      const rem = dance.duration - dance.currentTime;
+      if (rem <= 0.75 && !loopTriggered) {
+        loopTriggered = true;
+        runLoopTransition(loopCycle++);
+      } else if (dance.currentTime > 1.2 && rem > 1.5) {
+        loopTriggered = false;
+      }
+    }
+    requestAnimationFrame(watchDanceLoop);
+  }
+  requestAnimationFrame(watchDanceLoop);
+
+  // The dance starts when the curtain parts and plays continuously through the intro and State 1.
   function startIntro() {
     if (introStarted) return; introStarted = true;
+    try {
+      if (dance.currentTime > 0.05) dance.currentTime = 0;
+      dance.play().catch(() => {});
+    } catch (e) {}
     parting(); mark('invited');
     later(() => { mark('hideIntro', 'titleOn'); FX.mode('stage'); }, 3800);
     later(flyButterfly, 5200);
-    later(() => enterStage(), 7600);
+    later(() => enterStage(), 7200);
   }
   function enterStage(fast) {
     if (entered) return;
@@ -352,7 +478,6 @@
   function boot() {
     if (booted) return; booted = true;
     if (entered) { dance.play().catch(() => {}); return; }          // skipped while loading
-    const dp = dance.play(); if (dp) dp.catch(() => {});
     const cp = curtain.play();
     lastMove = performance.now();
     if (cp) cp.then(() => requestAnimationFrame(curtainLoop)).catch(() => { hideCurtain(); startIntro(); });
@@ -381,7 +506,7 @@
   }
 
   if (revealBtn) revealBtn.addEventListener('click', (e) => { e.stopPropagation(); doReveal(); });
-  if (revealGate) revealGate.addEventListener('click', doReveal);
+  if (revealGate) revealGate.addEventListener('click', (e) => { e.stopPropagation(); doReveal(); });
   $('skipButton').addEventListener('click', () => {
     doReveal();
     introStarted = true;
@@ -394,35 +519,16 @@
     else if (booted && dance.paused && !body.classList.contains('mode-site')) dance.play().catch(() => {});
   }, { passive: true }));
 
-  function spawnBalloon() {
-    if (document.hidden || !body.classList.contains('mode-site')) return;
-    const layer = $('balloons');
-    if (layer.childElementCount > 7) return;
-    const w = rnd(38, 58), h = w * 1.25;
-    const travel = layer.clientHeight + h + 160;                    // measured once, in pixels: scrolling / address-bar changes can't bend the path
-    const speed = rnd(55, 85);                                      // px per second, constant — no easing stop-and-go
-    const b = document.createElement('span'), inner = document.createElement('i');
-    b.className = 'balloon'; inner.className = 'bb';
-    b.style.setProperty('--x', rnd(2, 92) + '%');
-    inner.style.cssText = `width:${w}px;height:${h}px;--c:${pick(['#c88c82', '#e7bd8b', '#a9536b', '#f1d7ca', '#8a3a5c', '#d9b77e'])};--s:${rnd(14, 38)}px;--w:${rnd(3.6, 6).toFixed(1)}s;animation-delay:${(-rnd(0, 4)).toFixed(1)}s`;
-    b.appendChild(inner); layer.appendChild(b);
-    const anim = b.animate([{ transform: 'translate3d(0,0,0)' }, { transform: `translate3d(0,${-travel}px,0)` }], { duration: travel / speed * 1000, easing: 'linear', fill: 'forwards' });
-    anim.onfinish = () => b.remove();
-  }
-
   function openSite() {
-    clearTimeout(timer); clearTimeout(fxTimer); T.forEach(clearTimeout); T.length = 0;
+    clearTimeout(timer); clearTimeout(stateEndTimer); clearTimeout(fxTimer); T.forEach(clearTimeout); T.length = 0;
     setMode('site'); window.scrollTo(0, 0);
     site.setAttribute('aria-hidden', 'false');
     FX.mode('site');
-    setTimeout(() => { FX.cannons(); FX.fireworks(FX.W * .2, FX.H * .22); FX.fireworks(FX.W * .8, FX.H * .26); }, 350);
-    clearInterval(balloonTimer);
-    if (!reduce) { for (let i = 0; i < 4; i++) setTimeout(spawnBalloon, i * 500); balloonTimer = setInterval(spawnBalloon, 2200); }
+    setTimeout(() => { FX.cannons(); FX.glints(FX.W * .5, FX.H * .28, 30); FX.fireworks(FX.W * .2, FX.H * .22); FX.fireworks(FX.W * .8, FX.H * .26); }, 350);
     setTimeout(() => { if (body.classList.contains('mode-site')) { dance.pause(); stage.style.display = 'none'; } }, 1000);   // hidden stage: stop decoding + painting
     revealPass();
   }
   function replay() {
-    clearInterval(balloonTimer); $('balloons').innerHTML = '';
     stage.style.display = ''; setMode('stage'); window.scrollTo(0, 0);
     site.setAttribute('aria-hidden', 'true');
     dance.currentTime = 0; dance.play().catch(() => {});

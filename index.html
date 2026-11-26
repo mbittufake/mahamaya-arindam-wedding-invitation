@@ -12,7 +12,7 @@
   <meta property="og:type" content="website">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=DM+Sans:wght@300;400;500;600&family=Great+Vibes&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=DM+Sans:wght@300;400;500;600&family=Great+Vibes&family=Pinyon+Script&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   <script src="script.js" defer></script>
 </head>
@@ -45,9 +45,7 @@
           </svg>
         </div>
         <p class="eyebrow">A celebration of love</p>
-        <h1 class="reveal-names">Mahamaya <i>&amp;</i><br>Arindam</h1>
         <div class="orn"><b></b><span>✦</span><b></b></div>
-        <p class="reveal-date">06 · 12 · 2026</p>
         <p class="reveal-script">You are invited</p>
         <button class="gold-btn reveal-btn" id="revealBtn" type="button">
           Open Invitation <span aria-hidden="true">✦</span>
@@ -55,7 +53,8 @@
         <p class="reveal-hint">Tap anywhere to enter with music ♫</p>
       </div>
 
-      <video class="bgvideo dance" id="danceVideo" src="dance.mp4" poster="dance-poster.jpg" muted loop playsinline webkit-playsinline preload="auto" disablepictureinpicture aria-label="The couple dancing"></video>
+      <video class="bgvideo dance" id="danceVideo" src="final.mp4" poster="dance-poster.jpg" muted loop playsinline webkit-playsinline preload="auto" disablepictureinpicture aria-label="The couple dancing"></video>
+      <div class="loop-veil" aria-hidden="true"></div>
       <div class="dim" aria-hidden="true"></div>
       <video class="bgvideo curtain" id="curtainVideo" src="curtain.mp4" poster="curtain-poster.jpg" muted playsinline webkit-playsinline preload="auto" disablepictureinpicture aria-hidden="true"></video>
       <div class="bloom" aria-hidden="true"></div>
@@ -75,7 +74,7 @@
 
       <div class="scenes" id="scenes">
 
-        <div class="scene" data-dur="7600">
+        <div class="scene" data-dur="7000">
           <p class="l eyebrow" style="--i:0">Together with their families</p>
           <svg class="l ring" style="--i:1" viewBox="0 0 60 34" aria-hidden="true">
             <circle cx="22" cy="21" r="11"/><circle cx="38" cy="21" r="11"/>
@@ -159,7 +158,7 @@
   <!-- Simple details site with celebration animation -->
   <main class="site" id="site" aria-hidden="true">
     <div class="bunting" id="bunting" aria-hidden="true"></div>
-    <div class="balloons" id="balloons" aria-hidden="true"></div>
+    <div class="glitter-bg" aria-hidden="true"></div>
 
     <header class="s-hero">
       <p class="s-eyebrow rv">Together with their families</p>
