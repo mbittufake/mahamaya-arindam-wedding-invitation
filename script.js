@@ -548,6 +548,20 @@
   }
   $('viewAll').addEventListener('click', openSite);
   $('skipStory').addEventListener('click', e => { e.stopPropagation(); openSite(); });
+  // Scroll down (wheel or touch swipe-up) on the final story state opens all details
+  addEventListener('wheel', e => {
+    if (body.classList.contains('mode-stage') && cur === LAST && e.deltaY > 18) openSite();
+  }, { passive: true });
+  let touchStartY = null;
+  frame.addEventListener('touchstart', e => {
+    if (body.classList.contains('mode-stage') && cur === LAST && e.touches.length === 1) touchStartY = e.touches[0].clientY;
+  }, { passive: true });
+  frame.addEventListener('touchend', e => {
+    if (touchStartY !== null && body.classList.contains('mode-stage') && cur === LAST && e.changedTouches.length) {
+      if (touchStartY - e.changedTouches[0].clientY > 40) openSite();
+    }
+    touchStartY = null;
+  }, { passive: true });
   $('replayA').addEventListener('click', e => { e.stopPropagation(); cur = -1; go(0); });
   $('replayB').addEventListener('click', replay);
   $('popBtn').addEventListener('click', e => {
