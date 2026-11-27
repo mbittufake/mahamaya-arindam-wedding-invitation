@@ -234,10 +234,22 @@
   })();
 
   (function buildBunting() {
-    const cols = ['#5e1630', '#e7bd8b', '#821d40', '#f6dcaa', '#3d0c1f'];
-    const n = Math.max(14, Math.round(innerWidth / 46));
-    $('bunting').innerHTML = Array.from({ length: n }, (_, i) =>
-      `<i style="background:${cols[i % cols.length]};animation-delay:${(-i * .27).toFixed(2)}s"></i>`).join('');
+    const box = $('bunting'), arches = Math.max(4, Math.round(innerWidth / 150));
+    let html = '<svg viewBox="0 0 100 66" preserveAspectRatio="none">';
+    let drops = '';
+    for (let a = 0; a < arches; a++) {
+      const x0 = (a / arches) * 100, x1 = ((a + 1) / arches) * 100, xm = (x0 + x1) / 2;
+      html += `<path d="M${x0.toFixed(2)} 2 Q${xm.toFixed(2)} 54 ${x1.toFixed(2)} 2"/>`;
+      html += `<path d="M${x0.toFixed(2)} 2 Q${xm.toFixed(2)} 34 ${x1.toFixed(2)} 2" style="opacity:.45"/>`;
+      const pts = 5;
+      for (let j = 1; j < pts; j++) {
+        const t = j / pts, x = x0 + (x1 - x0) * t, y = 2 + 4 * 26 * t * (1 - t);
+        const lg = j === 2 || j === 3 ? ' lg' : '';
+        drops += `<span class="gdrop${lg}" style="left:${x.toFixed(2)}%;top:${y.toFixed(1)}px;animation-delay:${(((a * pts + j) * 0.31) % 2.8).toFixed(2)}s"></span>`;
+      }
+    }
+    html += '</svg>' + drops;
+    box.innerHTML = html;
   })();
 
   /* ================= story engine ================= */
