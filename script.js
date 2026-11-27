@@ -546,7 +546,7 @@
     dance.currentTime = 0; dance.play().catch(() => {});
     FX.mode('stage'); cur = -1; go(0);
   }
-  $('viewAll').addEventListener('click', openSite);
+  $('scrollDownBtn').addEventListener('click', openSite);
   $('skipStory').addEventListener('click', e => { e.stopPropagation(); openSite(); });
   // Scroll down (wheel or touch swipe-up) on the final story state opens all details
   addEventListener('wheel', e => {
