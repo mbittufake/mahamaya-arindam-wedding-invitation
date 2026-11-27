@@ -146,9 +146,10 @@ body.mode-curtain .controls,body.mode-curtain .skip{opacity:0;pointer-events:non
 .gold-btn span{margin-left:2cqw}
 @keyframes pulse{0%{transform:scale(1);opacity:.8}70%,100%{transform:scale(1.22,1.5);opacity:0}}
 .ghost-link{background:none;border:0;color:#f6e3cf;font-size:2.8cqw;letter-spacing:.14em;text-transform:uppercase;text-shadow:0 1px 8px #000;padding:1cqw}
-.cta-scroll-btn{display:inline-flex;align-items:center;gap:2.2cqw;animation:ctaBob 2.2s ease-in-out infinite}
-.cta-scroll-btn svg{width:3.2cqw;height:2cqw;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-@keyframes ctaBob{0%,100%{transform:translateY(0)}50%{transform:translateY(.9cqw)}}
+.cta-scroll-btn{display:inline-flex;align-items:center;gap:2cqw;background:#0e070cb0;color:#f6e3cf;border:1px solid #e7bd8b55;border-radius:30px;padding:2.2cqw 4.4cqw;font-size:2.7cqw;letter-spacing:.12em;text-transform:uppercase;white-space:nowrap;transition:background .25s,color .25s;animation:ctaBob 2.4s ease-in-out infinite}
+.cta-scroll-btn:hover{background:var(--gold);color:var(--wine)}
+.cta-scroll-btn svg{width:2.6cqw;height:1.6cqw;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+@keyframes ctaBob{0%,100%{transform:translateY(0)}50%{transform:translateY(.7cqw)}}
 
 /* ---------- 3 · engagement party site (rich maroon & gold) ---------- */
 .site{display:none;position:relative;background:radial-gradient(ellipse 95% 45% at 50% 0,#5f1532 0,transparent 65%),#240712;color:#fdf2e4;min-height:100vh}
